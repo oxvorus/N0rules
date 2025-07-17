@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome to N0Rules</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <style>
+body {
+  background-image: url('public/bg2.jpeg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+  </style>
+</head>
+<body class="text-sm text-gray-800">
+
+  <!-- 1. Status Koneksi -->
+  <div class="max-w-2xl mx-auto mt-4 bg-green-100 border border-green-500 p-4 rounded shadow">
+    <p class="text-green-700 font-semibold">✅ Connected</p>
+    <p>👥 Live Users: <strong>0 users online</strong></p>
+    <p>You are: <a href="#" class="text-blue-600 font-semibold" id="username"></a></p>
+    <p class="text-gray-500 text-xs">🔌 Real-time connection active • All users with this link are connected • Updates instantly</p>
+  </div>
+
+  <!-- 2. Intro Section -->
+  <div class="max-w-4xl mx-auto bg-white border border-red-500 p-4 rounded-md shadow-lg mt-6 mb-4">
+    <h2 class="text-xl font-bold mb-2 text-red-700">What is N0Rules Society?</h2>
+    <p>
+      N0Rules is a real-time anonymous bulletin board where anyone can post comments, share content, or chat instantly.
+      This site connects all users with the same link in real-time, enabling <strong>live interactions and instant updates.</strong>
+    </p>
+  </div>
+
+  <!-- 2a. Game Container -->
+  <div class="max-w-4xl mx-auto bg-gradient-to-r from-purple-600 via-pink-500 to-red-400 border border-purple-400 p-4 rounded-md shadow-lg mb-4 flex items-center justify-between">
+    <div>
+      <h2 class="text-lg font-bold text-white mb-1">N0Rules Game: Virgin Detector</h2>
+      <p class="text-white text-sm">Tebak siapa yang tidak perawan dan vote bareng user lain! Nikmati game seru & voting anonim.</p>
+    </div>
+    <a href="game/virgin-detector.html" class="ml-4 bg-white text-purple-700 font-bold px-5 py-2 rounded shadow hover:bg-purple-100 transition">Mainkan Game 🎮</a>
+  </div>
+
+  <!-- 3. Header Board + Create Topic -->
+  <div class="max-w-4xl mx-auto bg-white border p-4 rounded shadow flex flex-col sm:flex-row sm:items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-red-600">NORules Society</h1>
+      <p class="text-xs text-gray-600">Real-time connected anonymous discussions</p>
+      <p class="text-xs">You are: <span class="text-blue-700" id="username2"></span></p>
+    </div>
+    <div class="mt-3 sm:mt-0">
+      <button id="createTopicBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm">➕ Create Topic</button>
+    </div>
+  </div>
+
+  <!-- Input fields for topic -->
+  <div class="max-w-4xl mx-auto bg-white border p-4 mt-4 rounded shadow space-y-2">
+    <input id="newTitle" type="text" placeholder="Topic Title..." class="border p-2 w-full rounded" />
+    <textarea id="newMessage" placeholder="Say something..." class="border p-2 w-full rounded"></textarea>
+    <select id="newCategory" class="border p-2 w-full rounded">
+      <option value="">-- Select Category --</option>
+      <option value="Kinks & Fetish">Kinks & Fetish</option>
+      <option value="Anonymous">Anonymous</option>
+      <option value="Game Boards">Game Boards</option>
+      <option value="Content">Content</option>
+      <option value="Chat Rooms">Chat Rooms</option>
+      <option value="Other">Other</option>
+    </select>
+    <input id="newMedia" type="file" accept="image/*,video/*" class="border p-2 w-full rounded" />
+  </div>
+
+  <!-- 4. Search & Filter Buttons -->
+  <div class="max-w-4xl mx-auto bg-white border p-4 mt-4 rounded shadow">
+    <div class="flex flex-wrap items-center gap-2">
+      <input id="searchInput" type="text" placeholder="🔍 Search topics..." class="flex-1 px-3 py-1 border rounded text-sm" />
+      <button class="px-3 py-1 bg-black text-white rounded" data-category="All">All</button>
+      <button class="px-3 py-1 border rounded" data-category="Kinks & Fetish">Kinks & Fetish</button>
+      <button class="px-3 py-1 border rounded" data-category="Anonymous">Anonymous</button>
+      <button class="px-3 py-1 border rounded" data-category="Game Boards">Game Boards</button>
+      <button class="px-3 py-1 border rounded" data-category="Content">Content</button>
+      <button class="px-3 py-1 border rounded" data-category="Chat Rooms">Chat Rooms</button>
+      <button class="px-3 py-1 border rounded" data-category="Other">Other</button>
+    </div>
+  </div>
+
+  <!-- 5. Create First Topic -->
+  <div id="noTopicsContainer" class="max-w-4xl mx-auto bg-white border p-6 mt-6 rounded text-center shadow">
+    <h2 class="text-lg font-semibold text-gray-800 mb-2">No Topics Yet</h2>
+    <p class="text-sm text-gray-600 mb-4">Be the first to create a topic! It will be instantly broadcast to all connected users.</p>
+    <button id="createFirstBtn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded">Create First Topic</button>
+  </div>
+
+  <!-- 6. Boards -->
+  <div id="boardsContainer" class="max-w-5xl mx-auto bg-white border border-red-300 p-4 mt-8 rounded-md shadow" style="display:none;">
+    <h3 class="text-xl font-bold text-red-600 mb-4">Boards</h3>
+    <div id="topicList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+  </div>
+
+  <!-- Script -->
+  <script>
+    // Inisialisasi nama anonim
+    if (!localStorage.getItem("anonUser")) {
+      localStorage.setItem("anonUser", "Anon_" + Math.floor(Math.random() * 100000));
+    }
+    const username = localStorage.getItem("anonUser");
+    document.getElementById("username").innerText = username;
+    document.getElementById("username2").innerText = username;
+
+    // Ambil semua topik
+    let topics = JSON.parse(localStorage.getItem("topics") || "[]");
+    const topicList = document.getElementById("topicList");
+
+    function timeAgo(ts) {
+      const now = Date.now();
+      const diff = Math.floor((now - Number(ts)) / 60000); // minutes
+      if (diff < 1) return 'just now';
+      if (diff === 1) return '1m ago';
+      return `${diff}m ago`;
+    }
+
+    let activeCategory = "All";
+    let searchQuery = "";
+
+    function renderTopics() {
+      topicList.innerHTML = '';
+      const boardsContainer = document.getElementById("boardsContainer");
+      const noTopicsContainer = document.getElementById("noTopicsContainer");
+      let filtered = topics.filter(topic => {
+        const matchCategory = activeCategory === "All" || topic.category === activeCategory;
+        const matchSearch = topic.title.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchCategory && matchSearch;
+      });
+      // Urutkan berdasarkan aktivitas terbanyak (jumlah replies)
+      filtered.sort((a, b) => (b.replies ? b.replies.length : 0) - (a.replies ? a.replies.length : 0));
+      if (filtered.length === 0) {
+        boardsContainer.style.display = "none";
+        noTopicsContainer.style.display = "block";
+      } else {
+        boardsContainer.style.display = "block";
+        noTopicsContainer.style.display = "none";
+        filtered.forEach(topic => {
+          const card = document.createElement("div");
+          card.className = "relative bg-white border rounded-lg shadow p-5 flex flex-col min-h-[220px]";
+          let mediaHtml = '';
+          if (topic.mediaType === 'video') {
+            mediaHtml = `<video controls class='mb-3 max-h-40 w-auto rounded'><source src='${topic.media}' type='video/mp4'></video>`;
+          } else if (topic.mediaType === 'image') {
+            mediaHtml = `<img src='${topic.media}' alt='topic image' class='mb-3 max-h-40 w-auto rounded' />`;
+          }
+          card.innerHTML = `
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-3 py-1 rounded-full text-xs font-semibold ${topic.category === 'Kinks & Fetish' ? 'bg-red-600 text-white' : topic.category === 'Anonymous' ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-700'}">${topic.category || 'Uncategorized'}</span>
+              <span class="text-gray-500 text-xs flex items-center"><svg xmlns='http://www.w3.org/2000/svg' class='inline mr-1' width='16' height='16' fill='none' viewBox='0 0 24 24'><path stroke='currentColor' stroke-width='2' d='M12 8v4l3 2'/></svg>${timeAgo(topic.id)}</span>
+            </div>
+            ${mediaHtml}
+            <a href="room.html?id=${topic.id}" class="block font-bold text-lg text-red-700 mb-1">${topic.title}</a>
+            <div class="text-gray-800 mb-4">${topic.message}</div>
+            <div class="mt-auto flex items-center text-xs text-gray-600 border-t pt-2">
+              <svg xmlns='http://www.w3.org/2000/svg' class='inline mr-1' width='16' height='16' fill='none' viewBox='0 0 24 24'><path stroke='currentColor' stroke-width='2' d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/></svg>
+              ${topic.replies ? topic.replies.length : 0} messages &nbsp; by ${topic.user}
+            </div>
+          `;
+          topicList.appendChild(card);
+        });
+      }
+    }
+
+    // Event filter kategori
+    const categoryButtons = document.querySelectorAll('[data-category]');
+    function updateCategoryButtonStyles() {
+      categoryButtons.forEach(btn => {
+        const cat = btn.getAttribute('data-category');
+        if (cat === activeCategory) {
+          btn.classList.add('bg-red-600', 'text-white');
+          btn.classList.remove('bg-black', 'text-black', 'border');
+        } else {
+          btn.classList.remove('bg-red-600', 'text-white');
+          if (cat === 'All') {
+            btn.classList.add('bg-black', 'text-white');
+            btn.classList.remove('text-black');
+          } else {
+            btn.classList.add('bg-white', 'text-black', 'border');
+            btn.classList.remove('bg-black');
+          }
+        }
+      });
+    }
+
+    categoryButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        activeCategory = this.getAttribute('data-category');
+        updateCategoryButtonStyles();
+        renderTopics();
+      });
+    });
+    updateCategoryButtonStyles();
+
+    // Event search
+    document.getElementById('searchInput').addEventListener('input', function() {
+      searchQuery = this.value;
+      renderTopics();
+    });
+    renderTopics();
+
+    // Fungsi tambah topik
+    function createTopic() {
+      const title = document.getElementById("newTitle").value.trim();
+      const message = document.getElementById("newMessage").value.trim();
+      const category = document.getElementById("newCategory").value;
+      const mediaInput = document.getElementById("newMedia");
+      let mediaData = "";
+      let mediaType = "";
+
+      if (!title || !message || !category) {
+        alert("Please fill in title, message, and select a category.");
+        return;
+      }
+
+      if (mediaInput.files && mediaInput.files[0]) {
+        const file = mediaInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          mediaData = e.target.result;
+          if (file.type.startsWith('video/')) {
+            mediaType = 'video';
+          } else if (file.type.startsWith('image/')) {
+            mediaType = 'image';
+          }
+          saveTopic(mediaData, mediaType);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        saveTopic("", "");
+      }
+    }
+
+    function saveTopic(mediaData, mediaType) {
+      const title = document.getElementById("newTitle").value.trim();
+      const message = document.getElementById("newMessage").value.trim();
+      const category = document.getElementById("newCategory").value;
+      const newTopic = {
+        id: Date.now().toString(),
+        title,
+        message,
+        category,
+        media: mediaData,
+        mediaType,
+        user: username,
+        replies: []
+      };
+      topics.push(newTopic);
+      localStorage.setItem("topics", JSON.stringify(topics));
+      renderTopics();
+      document.getElementById("newTitle").value = '';
+      document.getElementById("newMessage").value = '';
+      document.getElementById("newCategory").value = '';
+      document.getElementById("newMedia").value = '';
+    }
+
+    // Event tombol Create Topic & Create First Topic
+    document.getElementById("createTopicBtn").addEventListener("click", createTopic);
+    document.getElementById("createFirstBtn").addEventListener("click", createTopic);
+  </script>
+
+</body>
+</html>

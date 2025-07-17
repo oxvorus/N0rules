@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Non-Virgin Detector Sociey</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase scripts removed, pakai localStorage -->
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-image: url('../public/bg2.jpeg');
+      background-size: cover;
+      background-position: center;
+      font-family: Arial, sans-serif;
+      color: black;
+    }
+
+    .token-name {
+  font-size: 28px;
+  margin-top: 20px;
+  font-weight: bold;
+  text-shadow: 0 0 10px #ff4ec4;
+  color: white; /* Tambahin ini */
+}
+
+
+    .main-wrapper {
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo {
+      font-size: 30px;
+      margin-bottom: 30px;
+      text-align: center;
+      background: linear-gradient(45deg, #ff4ec4, #ffd900, #2affff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glowLoop 3s ease-in-out infinite;
+    }
+
+    @keyframes glowLoop {
+      0%, 100% { text-shadow: 0 0 8px #ff6ec7; }
+      50% { text-shadow: 0 0 16px #fff000, 0 0 24px #2affff; }
+    }
+
+    .token-frame {
+      width: 180px;
+      height: 180px;
+      border-radius: 9999px;
+      overflow: hidden;
+      border: 5px solid #ff4ec4;
+      box-shadow: 0 0 25px 8px rgba(255, 0, 255, 0.5);
+    }
+
+    .token-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .token-name {
+      font-size: 28px;
+      margin-top: 20px;
+      font-weight: bold;
+      text-shadow: 0 0 10px #ff4ec4;
+    }
+
+    .token-price {
+      font-size: 22px;
+      color: #ffd700;
+      margin-top: 8px;
+      text-shadow: 0 0 6px #ffea00;
+    }
+
+    .chart-container {
+      margin-top: 30px;
+      width: 90%;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 20px;
+      backdrop-filter: blur(5px);
+    }
+
+    .button {
+      margin-top: 30px;
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border: 3px solid plum;
+      border-radius: 12px;
+      background: transparent;
+      color: white;
+      box-shadow: 0 0 20px 5px rgba(255, 0, 255, 0.6);
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .button:hover {
+      background: purple;
+      color: black;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- BACK TO INDEX BUTTON -->
+<div class="fixed top-6 left-6 z-50">
+  <a href="../index.html" class="bg-purple-600 text-white px-5 py-2 rounded-full shadow-lg hover:bg-purple-700 transition font-bold">← Back to Index</a>
+</div>
+
+<!-- MAIN LANDING SECTION -->
+<div class="main-wrapper">
+  <div class="logo">Welcome to N0Rules Games Society</div>
+  <div class="token-frame">
+    <img src="picture/n0rules-token.jpeg" alt="n0rules-token">
+  </div>
+  <div class="token-name">N0Rules Token</div>
+  <div class="token-price">$100.00</div>
+  <div class="chart-container">
+    <canvas id="priceChart"></canvas>
+  </div>
+  <button onclick="startGame()" class="button">Start the Game</button>
+</div>
+
+<!-- INTRO GAME SECTION -->
+<div id="introSection" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="token-name text-white">N0Rules Token</div>
+  <div class="max-w-xl w-full p-6 rounded-2xl shadow-lg bg-white/70 backdrop-blur-md text-center" style="background-color:ghostwhite;">
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 text-gray-800">Enjoy The Show Folks!</h1>
+    <h2 class="text-lg sm:text-xl text-gray-600 mb-6 italic">Everything inside this web is ANON & FREE. So have fun!</h2>
+    <button onclick="startGame()" class="bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition">Guess The Virginity</button>
+  </div>
+</div>
+
+<!-- GAME BOARD -->
+<div id="coupleContainer" class="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto h-screen px-3 py-8 hidden">
+  <div id="coupleSlides" class="flex flex-col gap-8 w-full max-w-4xl"></div>
+</div>
+
+<!-- CHART.JS -->
+<script>
+  const ctx = document.getElementById('priceChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Today'],
+      datasets: [{
+        label: 'Token Price',
+        data: [80, 90, 95, 97, 100],
+        borderColor: '#ff4ec4',
+        backgroundColor: 'rgba(255, 78, 196, 0.3)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: 'white'
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+        x: { ticks: { color: 'white' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+      }
+    }
+  });
+</script>
+
+<!-- FIREBASE SCRIPT -->
+<script>
+  // Voting & komentar pakai localStorage
+
+  let current = 1;
+  const totalCouples = 40;
+
+
+  // Generate couplesData array
+  const couplesData = Array.from({ length: totalCouples }, (_, i) => ({
+    id: i + 1,
+    question: `Siapa yang tidak Perawan?`,
+    leftImg: `picture/cewek${i + 1}a.jpeg`,
+    rightImg: `picture/cewek${i + 1}b.jpeg`
+  }));
+
+  // Shuffle couplesData for random order
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Shuffle before rendering
+  shuffleArray(couplesData);
+
+  window.onload = () => {
+    const container = document.getElementById('coupleSlides');
+    couplesData.forEach(couple => {
+      container.innerHTML += `
+        <div id="couple${couple.id}" class="flex flex-col md:flex-row gap-8 p-6 rounded-2xl shadow-lg bg-white/70 backdrop-blur-md hidden" style="background-color:ghostwhite;">
+          <div class="flex-1">
+            <h2 class="text-xl font-bold mt-2 text-center">${couple.question}</h2>
+            <div class="flex justify-center gap-10 mt-4">
+              <div class="flex flex-col items-center">
+                <img src="${couple.leftImg}" class="w-32 h-32 object-cover rounded-full border-4 border-white shadow-md" />
+                <button onclick="submitVote(event, ${couple.id}, 'left')" class="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Kiri</button>
+              </div>
+              <div class="flex flex-col items-center">
+                <img src="${couple.rightImg}" class="w-32 h-32 object-cover rounded-full border-4 border-white shadow-md" />
+                <button onclick="submitVote(event, ${couple.id}, 'right')" class="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Kanan</button>
+              </div>
+            </div>
+            <div id="voteCount${couple.id}" class="mt-4 text-center text-sm text-gray-700">👍 Kiri: 0 | 👍 Kanan: 0<br>💬 0 Komentar</div>
+            <div id="result${couple.id}" class="hidden mt-4 text-center">
+              <p class="font-semibold text-green-600">Lanjut gas!</p>
+              <button onclick="nextCouple()" class="mt-3 bg-purple-600 text-white py-1 px-4 rounded-lg hover:bg-purple-700">Next</button>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold">Live Chat Anonim:</h3>
+            <textarea id="commentInput${couple.id}" rows="2" class="w-full mt-2 p-2 border rounded-lg" placeholder="Tulis komentar kamu..."></textarea>
+            <button onclick="addComment(${couple.id})" class="mt-2 bg-purple-600 text-white py-1 px-4 rounded hover:bg-purple-700 transition">Kirim</button>
+            <div id="commentSection${couple.id}" class="bg-gray-100 rounded-lg p-2 mt-2 space-y-1 text-sm max-h-48 overflow-y-auto"></div>
+          </div>
+        </div>`;
+    });
+  };
+
+  function startGame() {
+    document.querySelector('.main-wrapper').style.display = 'none';
+    document.getElementById('introSection').classList.add('hidden');
+    document.getElementById('coupleContainer').classList.remove('hidden');
+    showCurrentCouple();
+  }
+
+  function showCurrentCouple() {
+    document.getElementById(`couple${current}`).classList.remove('hidden');
+    loadVotesAndComments(current);
+  }
+
+  function submitVote(event, id, choice) {
+    event.preventDefault();
+    // Ambil votes dari localStorage
+    let votes = JSON.parse(localStorage.getItem('votes') || '{}');
+    if (!votes[`couple${id}`]) votes[`couple${id}`] = [];
+    votes[`couple${id}`].push({ vote: choice, timestamp: Date.now() });
+    localStorage.setItem('votes', JSON.stringify(votes));
+    document.getElementById(`result${id}`).classList.remove('hidden');
+    loadVotesAndComments(id);
+  }
+
+  function nextCouple() {
+    document.getElementById(`couple${current}`).classList.add('hidden');
+    current++;
+    if (current > totalCouples) {
+      alert("Udah abis! Balik ke awal ya~");
+      current = 1;
+    }
+    showCurrentCouple();
+  }
+
+  function addComment(id) {
+    const input = document.getElementById(`commentInput${id}`);
+    const text = input.value.trim();
+    if (!text) return;
+    let comments = JSON.parse(localStorage.getItem('comments') || '{}');
+    if (!comments[`couple${id}`]) comments[`couple${id}`] = [];
+    comments[`couple${id}`].push({ text, timestamp: Date.now() });
+    localStorage.setItem('comments', JSON.stringify(comments));
+    input.value = '';
+    loadVotesAndComments(id);
+  }
+
+  function loadVotesAndComments(id) {
+    const voteCountEl = document.getElementById(`voteCount${id}`);
+    const commentBox = document.getElementById(`commentSection${id}`);
+    let leftVotes = 0;
+    let rightVotes = 0;
+    let votes = JSON.parse(localStorage.getItem('votes') || '{}');
+    let voteArr = votes[`couple${id}`] || [];
+    voteArr.forEach(val => {
+      if (val.vote === 'left') leftVotes++;
+      if (val.vote === 'right') rightVotes++;
+    });
+
+    voteCountEl.innerHTML = `👍 Kiri: ${leftVotes} | 👍 Kanan: ${rightVotes}`;
+
+    let comments = JSON.parse(localStorage.getItem('comments') || '{}');
+    let commentArr = comments[`couple${id}`] || [];
+    commentBox.innerHTML = '';
+    commentArr.slice().reverse().forEach(c => {
+      const p = document.createElement('p');
+      p.textContent = `Anon: ${c.text}`;
+      commentBox.appendChild(p);
+    });
+    voteCountEl.innerHTML += `<br> 💬 ${commentArr.length} Komentar`;
+  }
+</script>
+
+</body>
+</html>
